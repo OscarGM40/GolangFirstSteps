@@ -1,0 +1,74 @@
+						GOLANG TUTORIAL FOR BEGINNERS
+
+Source: https://www.youtube.com/watch?v=yyUHQIec83I
+
+Repo GitLab: https://gitlab.com/nanuchi/go-full-course-youtube
+
+Go fue creado por Google en 2007 y liberado como open-source en 2009.Asi que es un lenguaje muy joven.
+Al ser tan joven permite utilizar mejor los procesadores multicore actuales,además del paralelismo,las infraestructuras actuales de Clouds,etc.
+La mayoría de los anteriores lenguajes no consiguen hacer esto,y simplemente ejecutan aplicaciones secuencialmente.
+Go permite ejecutar esas aplicaciones en paralelo.Todo esto lo podemos apreciar en Youtube o GoogleDocs,donde varios usuarios pueden editar el mismo documento.
+Una aplicación de reserva de hoteles es otro ejemplo.
+
+Al final siempre estamos hablando de concurrencia(hacer varias cosas al mismo tiempo).Con Go se evitan problemas de Concurrencia.
+
+NOTA: Son concurrentes Java,Go,C++
+No son concurrentes: Python,Node
+
+GO fue diseñado para ejecutarse en múltiples cores y construido para soportar concurrencia.
+La concurrencia en Go es barata y fácil(supongo que no lo es en Java y C++)
+
+				CARACTERISTICAS PRINCIPALES DE GO
+
+Cuando Google creó Go intentó combinar:
+1- La sintaxis simple y legible de un lenguaje de alto nivel de tipado dinámico como Python
+2- La eficiencia y seguridad de un lenguaje de bajo nivel ,estáticamente tipado como C++
+Go es un lenguaje de Backend.Se usa en microservicios,aplicaciones web,servicios de Database.
+Muchas tecnologias que corren en entornos Cloud actuales están escritas en Go,como Docker,HashiCorpVault,Kubernetes,CockroachDb,...
+Go necesita menos recursos de CPU y RAM,es más eficiente.
+Es un lenguaje compilado,que compila a un único binario(código máquina).Por ello es consistente entre diferentes Sistemas Operativos,ya que todos ejecutarán binario.
+					INSTALAR GO Y SINTAXIX BÁSICA
+
+Para ejecutar Go necesitaré instalar el compilador Go(actualmente viene con una Go-CLI) y usar un IDE.Usaremos VSCode.
+
+Para instalar en Ubuntu:
+> sudo apt install golang
+
+go version <- confirmar la instalación
+
+Debo instalar en VSCode la extensión Go(la que tiene 6M downloads.Creo un file main.go y acepto todas las instalaciones posteriores.
+
+Para empezar hay que crear un módulo con go mod init <module path>.Ese path puede ser un repo.Mod viene de module:
+go mod init booking- 
+Esto creará el archivo go.mod(parece como el package.json)
+
+Aun tendré el error expected 'package',found Print.En Go todo el código debe pertenecer a un paquete.Para declarar un paquete se usa package <name> en la primera linea.El paquete donde va el main.go se llama main:
+
+package main
+
+Print("Hello World")
+
+Bien,ahora veré otro error 'expected declaration,found Print'.Básicamente Go necesita un entryPoint,hay que declararlo.Un entryPoint es una función main que Go ejecutará la primero.Debe llamarse main:
+
+func main(){
+  Print("Hello World")
+} <- con 'func' declaro una función
+
+Y ahora veré que la función Print la tengo que importar también:
+package main
+
+import "fmt"
+
+func main() {
+	fmt.Print("Hello World")
+}
+Fmt viene de 'formatter'
+
+Para poder ver todo esto tendré que usar su documentación.Esta aquí:
+https://pkg.go.dev/std
+
+Para ejecutar una aplicación con Go es muy sencillo,hay que usar 'go run <file name>'.Esto compilará y ejecutará también el código.
+
+					VARIABLES Y CONSTANTES EN GO
+
+
