@@ -71,4 +71,110 @@ Para ejecutar una aplicación con Go es muy sencillo,hay que usar 'go run <file 
 
 					VARIABLES Y CONSTANTES EN GO
 
+Todo programa tiene el concepto de variables implementado,en aras de no repetir código.Son como contenedores para un valor.
+Para usar variables en Go se usa la sintaxis: var <varname> = value.El intérprete inferirá el tipo al compilar:
+  var first_name = "Alexander"
+
+Recuerda que el nombre de una variable debe ser descriptivo de lo que almacena.
+IMPORTANTE:a diferencia de la mayoría de lenguajes Go compila con errores si declaro una variable y no la uso.Esto lo hace para forzar escribir código de mayor calidad(en resumen,tengo que usar ese first_name en algun punto).
+
+NOTA:lo mismo sucede si importo un paquete y no lo uso,en otros lenguajes es un warning,en Go es un error.
+
+En cuanto a constantes se usará la keyword 'const'.No se podrá cambiar el valor de la constante durante la ejecución del programa.
+Puedo usar estas variables o constantes como un argumento adicional del método fmt.Println():
+	var conferenceName = "Go Conference"
+	const conferenceTickets = 50
+	var remainingTickets = conferenceTickets
+
+	fmt.Println("Welcome to our "+ conferenceName +" booking application")
+	fmt.Println("We have total of", conferenceTickets, "tickets available and", remainingTickets, "are still available.")
+
+				PRINTING FORMATTED DATA
+
+Otra opción es usar el método fmt.Printf("Some text with variable %s",variable).Inferirá en esa posición(%s) la variable.Hace más fácil la insercción de los valores de las variables en el texto:
+
+fmt.Printf("Welcome to our %v booking application\n",conferenceName) 
+Fijate que al usar Printf hay que insertar los saltos de línea manualmente
+El %v se llama placeholder y según el carácter que use dirá a Go que tipo de formato utilizar.Acepta solo ciertos valores para el carácter:
+
+%v es el formato por default,formatea por defecto	
+%T Go-syntax representation of the type<- me dirá el tipo y no el valor
+etc...
+
+NOTA:todo esto lo puedo ver en la documentación,buscando por el paquete fmt
+
+					DATA TYPES IN GO
+
+En Go todo tiene que tener data types.En cualquier lenguaje hay múltiples tipos de datos,Go no es diferente.Sin embargo cada lenguaje suele variar un poco en cuanto a sus tipos de datos.
+
+En Go tengo los siguientes tipos de datos:
+Strings:  cualquier cadena de caracteres,usando double quotes("Casa")
+Integers : representa cualquier entero,positivo o negativo(14,-3)
+
+Estos son los más basicos.Fijate que necesitaré dobles comillas para definir un string.Bien,¿y por qué todo esto?.Porque en Go no puedo hacer esto(inicializar la variable en otra linea:
+
+var userName
+userName = "Tom"
+
+Go no sabrá de que tipo es userName.Esto en otros lenguajes se permite,pero Go no dejará iniciar una variable sin decirle el tipo.O bien lo infiere implicitamente al darle un valor en la misma linea(var username = "Tom") o tengo que darle el tipo al estilo de Typescript:
+
+var username string
+username="Tom"
+
+NOTA:el punto y coma es opcional en Go,pero,como siempre queda más claro el código al usarlo.
+
+	var userName string;
+	var userTickets int;
+	/* ask user for their name */
+	userName = "Tom"
+	userTickets =2;
+	fmt.Printf("User %v has booked %v tickets\n",userName,userTickets);
+
+Fijate que los tipos son string y int y no String y Integer.Puedo observar ya que Go me informa de muchos errores en tiempo de ejecución,en el IDE,en vez de esperar a que compile.
+
+/* %T me dirá el data type de una variable/constante */
+fmt.Printf("conferenceTickets type is %T while conferenceName's data type is %T\n", conferenceTickets, conferenceName);
+
+IMPORTANTE: Igual que en Typescript Go sacará el tipo implicitamente si asigno un valor a la variables en la misma linea.Sin embargo,puedo darle el tipo perfectamente,aunque lo fuera a sacar él.
+Esto puede ser útil cuando realmente quiero otro tipo,ya que mi tipado explícito prevalecerá sobre el suyo implícito:
+
+var conferenceName string = "Go Conference"; <- Go ya sabe que es un string
+const conferenceTickets int64 = 50;
+	var remainingTickets = conferenceTickets;
+
+NOTA: el Go,igual que en C# tengo varios tipos de Integer:
+uint8:unsigned integer de 8 bytes(0 to 255)
+uint16: unsigned integer of 16 bytes(0 to 65535)
+uint32: unsigned integer of 32 bytes=(0 to 42944967295)
+uint64: unsigned 64 bytes integer= (0 a un webo)
+int8: signed 8 bit integer(-128 a +127)
+int16: signed 16 bytes integer(-32768 a 32767)
+int32: signed 32 bytes(- varios millones a +varios millones)
+int64: lo mismo
+
+IMPORTANTE:int8 es el byte de java,int16 es el short,int32 es el int y int64 es el long de java.
+
+En cuanto a decimales en Go hay:
+float32: floating-decimal de 32 bits
+float64: floating decimal de 64 bits
+complex64: número complejo con float32 con parte real e imaginaria
+complex128:numbero complejo con float64 con parte real e imaginaria
+
+Todo esto que puede parecer confuso en realidad viene muy bien ya que si quiero que un numero sea siempre positivo y pequeño puedo usar un int8 o int16 y gastar menos memoria.Fijate como lo tipa Go esa constante conferenceTickets:
+
+const conferenceTickets untyped int = 50
+
+Como desarrollador debería ser más preciso si me lo permite el lenguaje y lo necesito:
+	var conferenceName = "Go Conference";
+	const conferenceTickets uint8 = 50;
+	var remainingTickets uint8 = conferenceTickets;
+
+Adicionalmente,en Go hay una "Syntactic Sugar" para definir variables(Syntactic Sugar =  una caracteristica que me deja realizar algo de una forma más sencilla).
+conferenceName := "Go Conference" <- no usar <var> y usar ':=' en vez de '='
+
+NOTA:sólo vale para variables,no vale para constantes(esto es lógico ya que no sabe si es una variable o constante,siempre creará variables).
+Tampoco se puede cambiar el tipo,hay que usar el que infiera Go implicitamente.
+
+					 MINUTO 45 GETTING USER INPUT
+
 
