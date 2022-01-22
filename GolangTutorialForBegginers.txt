@@ -177,4 +177,95 @@ Tampoco se puede cambiar el tipo,hay que usar el que infiera Go implicitamente.
 
 					 MINUTO 45 GETTING USER INPUT
 
+Para leer la entrada por teclado de un usuario usaré el mismo paquete 'fmt'.El paquete 'fmt' tiene diferentes funciones tanto para salida(ya lo hemos visto con Printf,Println) como para entrada.
+También maneja la escritura a un archivo de esos datos.
 
+Para recoger la entrada se usa el método Scan(varName),donde varName es una variable ya existente donde se almacenará el valor:
+fmt.Scan(&userName).
+IMPORTANTE: además tendré que usar un 'pointer'(es el símbolo &)Un pointer es una variable que apunta a la dirección en memoria de otra variable.En Go también se les llama variables especiales.
+
+Asi pues si imprimiera fmt.Println(userName) veré su valor pero con fmt.Println(&userName) apunto a la dirección:
+0xc00007a200
+Si uso fmt.Scan(&userName) ya si puedo recoger la entrada del usuario.
+Los apuntadores también existen en C y C++.
+Al tener la función un apuntador a su dirección en memoria puede reasignarle un valor.Con todo esto en cuenta podemos ya hacer un pequeño programa de consola:
+	var firstName string;
+	var lastname string;
+	var email string;
+	var userTickets int;
+
+	/* ask user for their name */
+	fmt.Println("Enter your first name:");
+	fmt.Scan(&firstName);
+	
+	fmt.Println("Enter your last name:");
+	fmt.Scan(&lastname);
+	
+	fmt.Println("Enter your email:");
+	fmt.Scan(&email);
+
+	fmt.Println("Enter the number of tickets you want:");
+	fmt.Scan(&userTickets);
+	
+	fmt.Printf("Thank you %v %v for booking %v tickets.\nYou will receive a confirmation email shortly at %v.\n",firstName,lastname,userTickets,email);
+
+Bien,ahora habría que actualizar los tickets.Sin embargo,veré que no puedo restar un int con un uint8:
+
+remainingTickets = remainingTickets - userTickets;
+invalid operation: mismatched types uint8 and int
+
+Una solución sería declarar los dos como unsigned de 8 bytes,otra es convertir-parsear con los métodos necesarios:
+remainingTickets = remainingTickets - uint8(userTickets); <- si tengo que castearlo también podria declararlo
+
+						ARRAYS & SLICES IN GO
+
+En Go tenemos dos tipos de datos para almacenar grupos de variables,los arrays y los slices.
+IMPORTANTE: los arrays en Go tienen un tamaño fijo.Hay que definir uno al crear el arreglo.La sintaxis para definir un array es:
+
+/*  var array_name = [size]type{optional initial values}*/
+var bookings = [5]string{"Nana","Nicole"};
+
+Aunque normalmente no se suelen saber los valores que tendrá un array.
+var array_name =[size]array_type {}
+NOTA: En Go un array sólo puede tener un mismo tipo de elementos
+
+Y también puedo resumir un poco su inicialización a (var array_name [size]type):
+var bookings [50]string; <- lo mismo pero sin el = ni el {}
+Si no voy a inicializarlo con valores mejor usar esta sintaxis.
+
+Puedo ver que el %T de un array será [size]type,y sacar su longitud con len(array).Su longitud será su longitud máxima posible:
+The type of the array is: [5]string
+The type of the first element is: string
+The size of the array is: 5
+
+Si por ejemplo trato de asignar un elemento fuera de las medidas del arreglo Go no me va a dejar ejecutar el script,ya me va a avisar en tiempo de compilación del error:
+bookings[52]="dsfsdf";
+index 52 (constant of type int) is out of bounds
+
+Sin embargo,puedo ver que los arrays en Go tienen una longitud estática,pero yo no siempre voy a saber ese número.
+Ni siquiera sabré si lo voy a llenar,ni lo que va a almacenar en total...entonces¿que pasa si necesito una lista que sea dinámica en tamaño?
+
+Go tiene los 'slices',que lo que hacen es expandirse automáticamente cuando nuevas posiciones son insertadas.
+
+							SLICES
+
+Un slice básicamente es una abstracción del tipo Array ya visto(lo usa por detrás).Sin embargo son mucho más flexibles,su longitud es variable y se pueden 'trozear'.obteniendo subpartes del mismo(sub-array).
+Un slice se redimensionará(expandirá) cuando sea necesario
+
+Para usar un slice simplemente no le defino el size:
+var bookings []string;
+Y para añadir usaré el método append(sliceName,value).Append agrega al final del elemento(como el push de Js).Si es necesario expande el slice.Fijate que necesita saber el nombre del slice
+append(bookings,firstName)
+
+Puedo ver que la longitud cambia si uso len(array | slice):
+The type of the array is: [50]string
+The type of the slice is: []string
+The size of the array is: 50
+The size of the slice is: 1
+Adicionalmente,puedo usar la misma sintaxis larga que con los arrays.
+var slice = []string{}
+
+								LOOPS IN GO
+Minuto 1h11m
+
+ 
