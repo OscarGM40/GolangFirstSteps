@@ -265,7 +265,106 @@ The size of the slice is: 1
 Adicionalmente,puedo usar la misma sintaxis larga que con los arrays.
 var slice = []string{}
 
-								LOOPS IN GO
-Minuto 1h11m
+						LOOPS IN GO
 
- 
+Actualmente tenemos una app que tiene una entrada de datos,los recibe,los imprime y termina.Vamos a cambiar esto con un bucle.
+Un loop statement permite ejecutar código múltiples veces.
+
+En Go los bucles han sido simplificados,sólo hay uno(el for).No existen ni el while,ni el do-while...Genial.
+
+INFINITE LOOP:
+La sintaxis para  un bucle infinito es for {}.Cualquier cosa que ponga entre las llaves se repetirá indefinidamente:
+
+for {
+  ...logic
+} 
+Simplemente meto toda la lógica en el for {}
+
+FOR EACH LOOP:
+Vamos a  iterar sobre el slice(que es una lista) y devolver sólo el primer nombre.Para iterar usaré la keyword 'range' en un bucle for con esta sintaxis:
+
+for index,element := range collection {}
+
+Range itera sobre elementos de cualquier data structure(sobre cualquier cosa iterable,no solo arrays y slices).Si está iterando sobre un array o slice devolverá el indice y el propio elemento
+
+firstNames := []string{} <- creo un slice
+		
+for index,booking := range bookings { <- recuerda me devuelve el index y el elem
+
+Para separar un string vamos a usar el método Fields() que viene del paquete 'strings.Este paquete contiene funcionalidad para trabajar con strings:
+for i,elem := range bookings{
+  strings.Fields(elem)
+}
+NOTA:el método Fields separa un string usando el white space as separator:
+"Nicole Smith" will become ["Nicole","Smith".
+Fijate que devuelve un slice
+
+NOTA:al importar más de un paquete hay que cambiar la sintaxis y usar import() y cada paquete además en una linea:
+
+import (
+	"fmt"
+	"strings"
+)
+IMPORTANTE:recuerda que GO no va a dejar compilar correctamente si dejo una variable sin usar.Y no vamos a usar el index.Para ignorar una variable usaré el llamado Bland Identifier(_).
+  
+ for _,booking := range bookingsSlice { <- blank identifier
+	firstNames = append(firstNames,strings.Split(booking," ")[0])
+  }
+
+				1H 24M IF -ELSE STATEMENT AND BOOLEANS
+
+Realmente la aplicación debería terminar cuando la reserva de tickets llegue a 0.Habrá que preguntar tras cada reserva si remainingTickets == 0.
+La sintaxis es igual que siempre:
+if (boolean Expression){
+   logic
+}
+
+Asi que quedará asi:
+if (remainingTickets == 0) {
+  fmt.Println("Sorry, we are sold out. Try again later.")
+  break;
+}
+Fijate en el uso de break que termina el for loop y sigue con el bloque siguiente(a diferencia de return que termina todo).En nuestro caso no tenemos ese bloque.
+
+También podemos declarar una variable booleana con el tipo bool:
+var noTicketsRemaining bool = remainingTickets == 0;
+O su forma "syntactic sugar":
+noTicketsRemaining := remainingTickets == 0;		
+
+Asi pues imprimiriamos si:
+if(noTicketsRemaining){ ...}
+
+Bien,y si un usuario quiere reservar más tickets de los que quedan lo mismo:
+  fmt.Println("enter number of tickets to purchase: ");
+  fmt.Scan(&userTickets);
+
+	if (uint8(userTickets) > remainingTickets) {
+	fmt.Printf("Sorry, we don't have enough tickets to complete your booking. Only %v tickets are available.\n", remainingTickets)
+	fmt.Println("Please try again")
+	continue;
+}
+Sin embargo,no queremos hacer un break y que salga del loop,un continue para que salte simplemente la iteración actual es suficiente.
+Lógicamente sería mejor usar if/else y menos continue/break.
+
+Como siempre puedo usar también if/else if/else(usando cuantos else if quiera):
+		if (uint8(userTickets) > remainingTickets) {
+			fmt.Printf("Sorry, we don't have enough tickets to complete your booking. Only %v tickets are available.\n", remainingTickets)
+			fmt.Println("Please try again")
+			continue;
+		} else if (uint8(userTickets) == 0) {
+			fmt.Println("You have to book at least one ticket")
+			continue;
+		}
+
+			FOR LOOP BASED ON CONDITION
+
+Puedo ejecutar cualquier bucle basandome en una expresión lógica:
+for remainingTickets > 0 && len(bookings) < 50 { ...}
+Incluso pueden ser varios boleanos(aunque con uno de ellos valdría,pues hacen lo mismo).
+Esto es justo lo que estabamos haciendo con for {} ya que realmente es esto:
+for true { ...} Claro que puedo obviar el true simplemente.Recuerda que puedo usar parentesis para incrementar la legibilidad:
+for (true) {}
+
+						1H 40M USER INPUT VALIDATION
+
+
