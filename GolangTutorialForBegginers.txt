@@ -367,4 +367,126 @@ for (true) {}
 
 						1H 40M USER INPUT VALIDATION
 
+Como desarrolladores debemos asegurarnos que la aplicación no cae cuando un usuario introduzca mal un dato.La aplicación debe ser robusta.
+
+La función len() devuelve el numero de caracteres para los strings y el numero de elementos para los arrays y slices.
+
+isValidName := len(firstName) >= 2 && len(lastname) >=2;
+
+El método strings.Contains(string,substring):bool devuelve true o false según el substring dado en el segundo argumento exista en el string pasado en el primer argumento.
+
+isValidEmail := strings.Contains(email,"@") && strings.Contains(email,".");
+
+Como cualquier otro lenguaje puedo usar &&, || o ! para negar:
+isValidCity := city != "singapore" || city != "new york" || city == "paris"
+if (!isValidCity)...
+
+Los if-else son super-importantes en programación ya que controlan el flujo de la aplicación.En GO hay un statement muy importante también que es el switch.
+
+						SWITCH/CASE STATEMENT
+
+Imagina que la aplicación puede estar en 6 ciudades diferentes y en base a cada ciudad ejecutará un código diferente:
+
+	city := "London"
+
+	switch city {
+		case "New York":
+			fmt.Println("Welcome to New York")
+		case "Paris","London":
+			fmt.Println("Welcome to Europe")
+		case "Singapore":
+			fmt.Println("Welcome to Singapore")
+		default:
+			fmt.Println("Welcome to the city of your dreams")
+	}
+
+Puedo agrupar valores en cada case separados por comas.
+
+						FUNCTIONS IN GO
+
+Nuestro código empieza a estar muy poblado.Mediante funciones puedo encapsular código en su propio contenedor(la propia función).
+Cada función debería tener un nombre para poder llamarla,y además debe ser descriptivo.
+Recuerda que en GO debe haber mínimo la funcion main,que arranca el programa.
+
+Para declarar una funcion en Go se usa la palabra reservada 'func':
+
+func greetUsers(){
+	...code	
+}
+
+Lógicamente una función debe poder recibir parámetros.En GO hay que indicar el tipo ya que estoy en un lenguaje de tipado estático:
+
+func greetUsers(confName string){
+	fmt.Println("Welcome to our conference")	
+}
+IMPORTANTE:fijate que en el background de una funcion lo que sucede es esto:
+
+func xxx(arg1 string,arg2 string,arg3 int){
+  var arg1 string;
+  var arg2 string;
+  var arg3 int;
+Es decir que lo primero que hace una función que recibe argumentos es crearlos.Sin embargo es algo que sucede transparente para el programador.
+
+func greetUsers(confName string){
+	fmt.Printf("Welcome to %v booking conference\n", confName);	
+}
+Ya puedo usarla con ese argumento:
+greetUsers(conferenceName);
+
+IMPORTANTE: En Go una función puede devolver datos como resultado.Es decir que una función puede tomar datos en la entrada(argumentos) y devolverl otros en el return.
+
+En Go tengo que definir el tipo de ambos parámetros,tanto los de entrada como los de salida.Esto se hace con la siguiente sintaxis func nam(args)[]string {}(es como en TS pero sin el :boolean):
+
+func getFirstNames(bookingsSlice []string)[]string {
+
+Dado que ahora retorna algo puedo acumularlo en una variable:
+firstNames := getFirstNames(bookingsSlice);
+fmt.Printf("These are all the firstnames of the bookings we have made so far: %v\n", firstNames)
+
+En GO una función puede devolver múltiples valores.Esto es diferente a la mayoria de lenguajes.De nuevo hay que especificar el tipo de datos de cada cosa que devuelva.
+
+Adicionalmente,hay que englobar al grupo de retorno en unos paréntesis.
+
+func validateUserInput(firstName string, lastname string, email string, userTickets int,remainingTickets int)(bool,bool,bool,bool) {
+	isValidName := len(firstName) >= 2 && len(lastname) >= 2
+	isValidEmail := strings.Contains(email, "@") && strings.Contains(email, ".")
+	isValidTickets := userTickets > 0
+	stillRemaining := (userTickets) <= remainingTickets
+		
+	return isValidName,isValidEmail,isValidTickets,stillRemaining
+}
+
+/* validate user input */
+isValidName, isValidEmail, isValidTickets, stillRemaining := validateUserInput(firstName, lastname, email, userTickets, int(remainingTickets))
+
+				PACKAGE LEVEL VARIABLES
+
+Son variables definidas arriba del archivo(tras los imports) y afuera de todas las funciones.
+Una variable definida a nivel de paquete es accesable por cualquier función,tanto en ese archivo como en otro con el mismo paquete:
+package main;
+import (
+  "fmt"
+  "strings"
+)
+
+var conferenceName = "Go Conference"; <- esto es una variable a nivel de paquete,accesible por el package main(importante,no admiten la declaración "syntactic sugar"
+
+Sin embargo,recuerda que debo definir las variables en el ámbito más 'local' posible.
+
+package main;
+
+import (
+	"fmt"
+	"strings"
+)
+/* package level variables - no syntactic sugar */
+var conferenceName = "Go Conference"
+const conferenceTickets uint8 = 50
+var remainingTickets uint8 = conferenceTickets
+
+func main() {
+
+2h22m
+
+
 
