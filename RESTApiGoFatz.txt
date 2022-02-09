@@ -1,0 +1,178 @@
+						PEQUEÑA REST API CON GO
+
+Fuente: https://www.youtube.com/watch?v=pQAV8A9KLwk&ab_channel=FaztCode
+Ejecutar nodemon: nodemon -e go --signal SIGTERM --exec 'go' run .
+
+Lo primero será crearse una struct para tipar una Task.Fijate en el uso de template strings:
+
+type task struct {
+	ID int `json:ID`
+	name string `json:Name`
+	Content string `json:Content`
+}
+
+					CREANDO RUTAS Y CONTROLADORES
+
+Puedo crear un HTTP router y URL matcher para servers WEb en Go mediante una libreria de un usuario de Github.Lo puedo requerir con este comando:
+>go get -u github.com/gorilla/mux
+
+Y lo importo hacia el proyecto:
+import (
+	"fmt"
+	"github.com/gorilla/mux"
+)
+
+Para crear una URL con este paquete es muy sencillo con el método NewRouter:
+
+func main(){
+  router := mux.NewRouter().StrictSlash(true);
+  router.HandleFunc("/",getTasks);
+}
+Y es igual de sencillo decirle la ruta y el controlador que atenderá esa ruta.Ahora bien,hay que crear este controlador.Desde ya necesitaremos el paquete "net/http":
+import (
+	"fmt"
+	"net/http"
+	"github.com/gorilla/mux"
+)
+El controlador llevará dos argumentos,w es la response y r la request(fijate que están al reves que en Node,es como si fuera (res,req) <- ojo
+
+func getTasks(w http.ResponseWriter,r *http.Request){
+  fmt.Fprintf(w,"Welcome to my API
+}
+Bien,si ahora ejecuto la app veré que inmediatamente termina.Lógicamente necesitamos un servidor web.Lo podemos hacer con el módulo recién importado "net/http".
+
+Para crear un servidor tengo el módulo http.ListenAndServe(:port,router).Pero también queremos ver los logs en caso de error,asi que también usaré la libreria 'log'
+
+import (
+  "log"
+  "net/http"
+ )
+
+func main(
+  router := mux.NewRouter().StrictSlash(true);
+  router.HandleFunc("/",getTasks);
+  log.Fatal(http.ListenAndServe(":3000", router); <- ojo que es :Port
+
+					SERVIDOR CON AUTOREFRESH
+
+Si ahora arranco la app podré ir a / y ver la lógica del controlador,pero no se auto-compila.Para re-compilar los archivos .go también hay una librería de un usario de github(https://github.com/githubnemo/CompileDaemon)
+D
+e igual manera instalo el módulo con :
+go get github.com/<user>/<repo>
+>go get github.com/githubnemo/CompileDaemon
+
+Ahora hay que usar CompileDaemon y generará un .exe
+No me funciona,puedo usar nodemon(el primero es de un Windows):
+nodemon --watch './**/*.go' --signal SIGTERM --exec 'go' run cmd/MyProgram/main.go
+
+>nodemon -e go --signal SIGTERM --exec 'go' run .
+Yo usaré el segundo de momento
+This will send SIGTERM every time any .go files changes and will run go run
+
+Otra opcion:
+go env -w GO111MODULE=on
+Y otra:
+go mod init "nombre cualquiera" y ejecutar go get gorilla/mux
+
+						GET TASKS
+
+Para crear el típico controlador que devuelve un slice tendremos que usar el objeto writter y la libreria encoding/json de esta forma:
+
+import (
+    "encoding/json" ... <- importo la libreria para tratar con sintaxis JSON
+
+router := mux.NewRouter().StrictSlash(true);
+router.HandleFunc("/tasks",getTasks).Methods("GET"); <- defino el controlador
+
+log.Fatal(http.ListenAndServe(":3000", router);
+
+NOTA: en Go existe el tipo pointer:
+s := "hello" <- type string
+p := "go"
+q := &s <- type pointer apuntando a s
+q := &p <- ahora q apunta a p
+Si ahora uso *q cambio a p,pero q no cambia,luego r nunca va a cambiar aqui ↓↓
+
+func getTasks(w http.ResponseWriter, r *http.Request){
+  json.NewEncoder(w).Encode(tasks); <- devuelvo las tasks
+},
+
+Fijate que para leer usaré NewDecoder(r.Body).Decode(&varnameJ).No es importante.Al final,para crear una task hay que hacer un par de cosas:
+func createTask(w http.ResponseWriter, r *http.Request){
+  var newTask task;
+  reqBody,err := ioutil.ReadAll(r.Body);
+  if (err != nil){
+    fmt.Fprintf(w,"Insert a valid Task") <- si hay un error mando esto  
+  }
+NOTA: fmt.Printf imprime a la consola, fmt.Fprintf imprime a un stream,obviamente es lo que necesito
+
+json.Unmarshal(reqBody,&newTask); <- decodifica el json y lo guarda en un puntero
+newTask.ID = len(tasks) + 1;
+tasks = append(tasks,newTask);
+
+w.Header().Set("Content-type","application/json")
+w.WriteHeader(http.StatusCreated);
+json.NewEncoder(w).Encode(newTask)
+
+IMPORTANTE: no escribir la cabecera w.Header().Set("Content-type","application/json" hará que el navegador no sepa que es JSON tanto lo que lee como lo que escriba,por tanto hay que enviar la cabecera hasta para el GET.De echo,POSTMAN no lo formateará sin ella.
+
+					OBTENER TAREA POR ID
+
+Para pasar el param por la ruta hay que usar la sintaxis de Java,y embeber el param entre {id} en vez de /:id.Fijate que esta vez en el controlador recibiré un IDpor los params:
+
+router.HandleFunc("/tasks/{id}",getTaskById).Methods("GET")
+
+func getTaskById(w http.ResponseWriter, r *http.Request) {
+  vars := mux.Vars(r) // mux.Vars(r) extrae todas las variables de la request
+ ** sin embargo las devuelve como string y yo necesito un int **
+  taskID,err := strconv.Atoi(vars["id]) <- ojo que el parseo puede fallar
+  if err != nil {
+    fmt.Fprintf(w,"id no válido) <- fijate que tengo que retornar
+    return;
+   }
+
+REMOVER DE UN SLICE: para eliminar de un slice fijate en la sintaxis:
+for i,t := range tasks {
+  if t.ID == taskID {
+	tasks = append(tasks[:i], tasks[i + 1:]...);
+	}
+}
+append(slice[:position],slice[position+1:]...); <- Perfecto , asinto  
+
+ACTUALIZAR TAREA: será el más complejo,lo mejor es eliminar y despues,dado que tengo el id,crear:
+
+func updateTask(w http.ResponseWriter, r *http.Request){
+	vars := mux.Vars(r) //extrae las variables de la request
+	taskID,err := strconv.Atoi(vars["id"]);
+	
+	if (err != nil) {
+		fmt.Fprintf(w, "Error al convertir el id %v\n", err);
+		return;
+	}
+	// leo el body de la request controlando el error
+	reqBody,err := ioutil.ReadAll(r.Body);
+	
+	if (err != nil) {
+		fmt.Fprintf(w, "Error al leer el body %v\n", err);
+	}
+	
+	var updatedTask task;
+	json.Unmarshal(reqBody, &updatedTask); //puntero a updatedTask
+
+	for i,t := range tasks {
+		if t.ID == taskID {
+			/* primero la elimino y despues la guardo */
+			tasks = append(tasks[:i], tasks[i + 1:]...);
+			/* al eliminarla necesito asignarla el mismo ID */
+			updatedTask.ID = taskID;
+			tasks = append(tasks, updatedTask);
+			fmt.Fprintf(w, "Se actualizo la tarea con el id %v\n", taskID);
+			return;
+		}else{
+			fmt.Fprintf(w, "No se encontro la tarea con el id %v\n", taskID);
+			return;
+		}
+	}
+}
+
+

@@ -484,9 +484,236 @@ var conferenceName = "Go Conference"
 const conferenceTickets uint8 = 50
 var remainingTickets uint8 = conferenceTickets
 
-func main() {
+						PACKAGES IN GO
 
-2h22m
+Until now we worked only with 1 file.Recuerda que un programa en Go es organizado en paquetes.
+Un paquete es una colección de archivos Go.
+Ya tenemos un paquete main que tuvimos que crear.						Until now we worked only with 1 file.Recuerda que un programa en Go es organizado en paquetes.
+Un paquete es una colección de archivos Go.
+Ya tenemos un paquete main que tuvimos que crear.						 
+
+Podría darse el caso que tuviera varios archivos y que en todos ellos necesitará la lógica para el input de datos del user.
+Puedo perfectamente crear un archivo helper.go que pertenecerá al mismo paquete:
+
+package main
+
+import (
+	"strings"
+)
+
+func validateUserInput(firstName string, lastname string, email string, userTickets int, remainingTickets int) (bool, bool, bool, bool) {
+	isValidName := len(firstName) >= 2 && len(lastname) >= 2
+
+	isValidEmail := strings.Contains(email, "@") && strings.Contains(email, ".")
+
+	isValidTickets := userTickets > 0
+
+	stillRemaining := (userTickets) <= remainingTickets
+
+	return isValidName, isValidEmail, isValidTickets, stillRemaining
+}
+
+Ahora tendré que arrancar la aplicación de forma diferente:
+go run main.go helper.go
+Obviamente no es muy eficaz ir de archivo en archivo asi que puedo referenciar un folder también:
+go run . <- el dot es el current folder
+
+							MÚLTIPLES PACKAGES
+
+Sin embargo,es muy común tener varios paquetes en una aplicación.
+
+Usar varios paquetes ayuda a organizar la aplicación y agrupar lógicamente mi código.
+Se recomienda crear un folder por cada paquete(main/main.go y helper/helper.go tal como tengo ahora la app).
+
+En cuanto haga esto Go ya no sabrá de donde viene la función del helper.go:
+undeclared name: validateUserInput
+Anteriormente lo sabía porque estaban en el mismo paquete
+
+Para poder tener visión sobre el contenido de un paquete tengo que importar implícitamente ese paquete(esto aplica tanto a built-in packages como a mis custom packages):
+
+import ( 
+  "fmt"
+  "strings"
+  "booking-app/helper" 
+)
+
+Sin embargo no bastará con poner "helper" pues Go buscaría en las librerias del lenguaje.Para poder referenciar el path tendré que usar el name que le dí al módulo en el go.mod
+module booking-app <- esto es = import path para TODOS los pkg de mi app
+
+Ahora para usarla tendré que usar el nombre del paquete junto con la función,igual que usaba fmt.Printf():
+
+helper.validateUserInput() <- sin embargo aún da otro fallo:
+validateUserInput not exported by package helpercompiler
+Cuando cree una función que va a usarse fuera de ese paquete tengo que exportarlaexpliciamente.Obviamente no estoy exportando esa función.
+
+IMPORTANTE: en Go la forma de exportar una función es capitalizar el nombre de la función.Esto es otra mejora en comparación con la mayoria del resto de lenguajes.
+Dado que he cambiado el nombre ahora la llamaré así:
+ helper.ValidateUserInput()
+
+NOTA:ya debería haberme dado cuenta de esto,pues todas las funciones estaban capitalizadas( fmt.Println, fmt.Printf, strings.Contain strings.Split ...).Sin embargo,soy muy asinto aún.
+
+IMPORTANTE: también puedo exportar variables,constantes,types y functions también simplemente Capitalizando el nombre.
+
+						SCOPE RULES
+
+Hay tres niveles de scope(local,package y global):
+
+local :ámbito local a la función.Solo puede usarse en esa función
+func printName( names []string) [] string{
+  names := []string{}; 
+Las variables declaradas en bucles for,if/else son de scope local también.
+
+package: declaradas fuera de cualquier función.Son accesibles en cualquier lugar de ese paquete:
+var age=30
+func ...
+
+global: declaradas tanto fuera de cualquier función como capitalizadas.Pueden usarse en cualquier lugar y paquete(aunque habrá que importar el paquete origen)
+const Tickets = 50
+
+import ... <- para poder usarla
+
+					DATA STRUCTURES - MAP
+
+Queremos guardar los datos de una forma más organizada.Algo así:
+firstName: "Nana"
+lastName:"Janashia"
+email:"nn@nn.com"
+tickets:3
+Un tipo de dato que va a permitir almacenar múltiples pares de clave-valor es el Map.Los Maps usarán unique keys,ya que es la forma de recuperar la data,mediante esa únique key(con lo que lo de arriba necesitaría ser pasado como valor).
+
+Para crear un map se usa la keyword map[keyType]valueType.Ejemplo:
+var userData = map[string]string 
+Al estar en un lenguaje tipado todas las keys tendrán el mismo tipo
+
+Fijate la diferencia entre un slice y un map:
+
+var myslice = []string{}
+Para crear un mapa antes se podia con {},pero ya es con la función make:
+var user = make(map[string]string);
+
+Para agregar pares de clave-valor se usa la sintaxis map[key]=value.Ejemplo:
+userData["fistName"]= firstName
+Con todo esto ya puedo crear un map:
+	user["firstName"] = firstName;
+	user["lastName"] = lastname;
+	user["email"] = email;
+	user["userTickets"] = strconv.Itoa(int(userTickets));
+
+En Go tengo el paquete strconv(el package strconv implementa conversiones desde y hacia strings):
+Los métodos más comunes son Atoi(string to int) y Itoa(integer to string):
+s := strconv.Itoa(-42)
+i := strconv.Atoi("34")
+También está ParseBool,ParseFloat,ParseInt y ParseUint o FormatInt,FormatUint:
+
+user["userTickets"] = strconv.FormatInt((int64(userTickets)), 10); Fijate que debo decir que es en base decimal y que siempre van a necesitar pasarse a 64bytes con int64,uint64,etc...
+NOTA:16 representaría hexadecimal,ya que hexadecimal usa 16 caracteres y no 10 como usan los números.
+
+Dado que lo que quiero es una coleccion de usuarios tengo que crear un slice de maps:
+var bookingsMap = make([]map[string]string,0)
+
+						DATA TYPES - STRUCTS
+
+Bien,pero que pasa si quiero coleccionar diferentes tipos de datos,como esto?:
+birthdate: Date <-01.02.1990
+newsletter: bool <- true
+attendanceNames: []string <- ["Mike","Sara"]
+
+Obviamente no puedo hacerlo con un map(make(map[string]string),pues sólo soporta un tipo de datos.
+Para ello puedo usar el tipo de datos Struct(que viene de estructura).
+Me permite almacenar tipos de datos mixtos
+
+Para crear una struct se usa la sintaxis:
+
+type <StructName> struct {
+  firstName string
+  lastName string
+  email string
+  isActive bool
+  numberOfTickets uint
+}
+* La keyword 'type' crea un nuevo tipo,con el nombre que le dé.Puedo traducir esto(type UserData struct {}) por: crea un tipo UserData basado en la struct {...}
+Incluso puedo crear cualquier otro tipo de dato basado en otro data type como int,string,etc
+
+la ventaja de una struct es que además me da el tipado con lo que un UserData tendrá que tener ciertas propiedades concretas:
+
+type UserData struct  {
+	firstName string
+	lastname string
+	email string
+	numberOfTickets uint
+} 
+Es como una clase ligera,ya que no soporta herencia.Para asignarla valores se crea una instancia asi: UserData {}.Ejemplo:
+
+var userData = UserData {
+ 	firstName: firstName,
+	lastname: lastname,
+	email: email,
+	numberOfTickets: uint(userTickets),		
+}
+
+					SIMULATING A LONG PROCCESS TASK
+
+NOTA:para guardar el retorno de fmt.Print,dado que este método sólo lo imprime por consola,tengo que usar fmt.Sprint y sus variantes:
+var ticket =  fmt.Sprintf("%v tickets for %v %v\n",userTickets, firstName, lastName,)
+Y para parar el proceso principal puedo usar el paquete time y su método Global Sleep:
+	time.Sleep(time.Second * 2)
+* La functin sleep para o bloquea el current thread (goroutine) durante el tiempoo establecido por argumento.
+
+						GO-CONCURRENCY AND THREADS
+
+Recordemos que una de las mayores ventajas de Go es su simplicidad al tratar con concurrencia.Nuestra aplicación corre en un mismo thread hasta ahora,asi que ese time.sleep lo va a bloquear.
+
+Si uso más threads Go mandará ese sendTicket con el delay a otro hilo,siguiendo con el proceso principal.Cuando ese hilo termine ejecutará su código(igual que async/await)
+
+Para crear un thread se usa la keyword 'go':
+go sendTicket(uint8(userTickets), firstName, lastname, email)
+Dado que sé que es un método asíncrono lo mando a otro hilo(go empieza una goroutine).Una goroutine es un lightweight thread managed by the Go runtime.
+Básicamente es un hilo temporal manejado por el interprete.
+
+Cuando esa goroutine termine volverá al hilo principal:
+
+Enter your city(New York | Paris | London | Singapore
+London
+Welcome to Europe
+Enter your first name:
+############### <- viene de la goroutine
+Sending ticket:
+30 tickets for Paris ina
+ to email address pa@s.c
+###############
+
+Puedo ver que es lo mismo que el eventLoop de Node.
+NOTA:por defecto,la main goroutine no espera  por otras goroutines.Esto es importante,ya que nuestro código funcionó bien sólo porque está en un bucle infinito for.
+Si quitará el bucle for y ejecutara la app y metiera un usuario la app terminarjia alli,ya que terminó el hilo principal.Puedo forzar al hilo principal a que espere a esa goroutine.
+
+Para esto tengo que crear un WaitGroup.Esto vendrá del paquete sync,que provee funcionalidad para sincronización de hilos.
+var wg = sync.WaitGroup {}
+
+Ahora puedo acceder a los métodos wg.Add(increaseNumberGoroutines),con Add incremento el número de gorutinas en ese argumento int:
+
+wg.Add(1)
+go sendTicket(arg1,arg2,...)
+wg.Wait() <- bloquea el hilo hasta que el numero de WaitGroups sea 0.
+
+Y con Done decremento el numero de goroutines en la cantidad que indique.Dado que quiero esperar a que la función ejecute todo su código va a ir al final de la función:
+func sendTicket(userTickets uint8, firstName string, lastName string, email string) {
+	time.Sleep(time.Second * 10)
+	var ticket = fmt.Sprintf("%v tickets for %v %v\n", userTickets, firstName, lastName)
+	fmt.Println("###############")
+	fmt.Printf("Sending ticket:\n%v to email address %v\n", ticket, email)
+	fmt.Println("###############")
+	wg.Done() <- siempre decrementa en 1??
+}
+Desde luego puedo observar que Go tiene varias ventajas.Crear un hilo usa menos código que por ejemplo Java además de ser más sencillo.
+Adicionalmente crear un Thread es muy pesado y consume más hardware que crear una Goroutine(que es un Thread ligero optimizado)
+Esto es asi porque Go lo que usa es algo similar a un Thread,pero no es un thread.Son goroutines de alto nivel manejadas por el interprete a diferencia de un Thread que es manejado por el SO y es mucho más costoso.
+Son más rápidas de crear,más ligeras,consumen menos memoria...
+Puedo ejecutar cientos de miles o incluso millones de gorutinas sin afectar el performance de la app
+
+No sólo esto,sino que los lenguajes que usan Threads del SO tienen más complicado recibir y enviar datos entre ellos.
+En GO existe el concepto de channel o canal que hace que compartir data entre hilos o gorutinas sea muy simple
+
+
 
 
 
